@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Plugin.AudioRecorder.Shared", "Plugin.AudioRecorder.Shared\Plugin.AudioRecorder.Shared.shproj", "{8EA2B3CD-E80A-420F-B7FC-6F36583C7FD5}"
 EndProject
@@ -40,6 +40,7 @@ Global
 		Plugin.AudioRecorder.Shared\Plugin.AudioRecorder.Shared.projitems*{8803a551-21d1-43ac-866c-39dda703c237}*SharedItemsImports = 4
 		Plugin.AudioRecorder.Shared\Plugin.AudioRecorder.Shared.projitems*{8ea2b3cd-e80a-420f-b7fc-6f36583c7fd5}*SharedItemsImports = 13
 		Plugin.AudioRecorder.Shared\Plugin.AudioRecorder.Shared.projitems*{b8c80930-f686-4fb5-8506-bd4ef845fd3d}*SharedItemsImports = 4
+		Plugin.AudioRecorder.Shared\Plugin.AudioRecorder.Shared.projitems*{e539c217-d04b-49a7-b4db-80b277fb2210}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
