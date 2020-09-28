@@ -227,6 +227,7 @@ namespace Plugin.AudioRecorder
 		{
 			audioStream.Flush (); // allow the stream to send any remaining data
 			audioStream.OnBroadcast -= AudioStream_OnBroadcast;
+			recorder?.ResumeRecorder();
 
 			try
 			{
