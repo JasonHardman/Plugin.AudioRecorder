@@ -9,6 +9,9 @@ namespace AudioRecord.Forms
 	{
 		AudioRecorderService recorder;
 		AudioPlayer player;
+		bool _isPlaying;
+		bool _playerIsPaused;
+		bool _recorderIsPaused;
 
 		public MainPage ()
 		{
@@ -27,7 +30,25 @@ namespace AudioRecord.Forms
 
 		async void Record_Clicked (object sender, EventArgs e)
 		{
-			await RecordAudio ();
+			StopButton.IsEnabled = true;
+			PlayButton.IsEnabled = false;
+			if (_recorderIsPaused)
+			{
+				_recorderIsPaused = false;
+				await recorder.StartRecording();
+			}
+			else if (recorder.IsRecording)
+			{
+				_recorderIsPaused = true;
+				recorder.PauseRecording();
+			}
+			else
+			{
+				await RecordAudio();
+				PlayButton.IsEnabled = true;
+			}
+
+			UpdateRecordButtonText();
 		}
 
 		async Task RecordAudio ()
@@ -38,28 +59,14 @@ namespace AudioRecord.Forms
 				{
 					recorder.StopRecordingOnSilence = TimeoutSwitch.IsToggled;
 
-					RecordButton.IsEnabled = false;
-					PlayButton.IsEnabled = false;
-
 					//start recording audio
 					var audioRecordTask = await recorder.StartRecording ();
-
-					RecordButton.Text = "Stop Recording";
-					RecordButton.IsEnabled = true;
-
+					UpdateRecordButtonText();
 					await audioRecordTask;
-
-					RecordButton.Text = "Record";
-					PlayButton.IsEnabled = true;
 				}
-				else //Stop button clicked
+				else
 				{
-					RecordButton.IsEnabled = false;
-
-					//stop the recording...
-					await recorder.StopRecording ();
-
-					RecordButton.IsEnabled = true;
+					recorder.PauseRecording();
 				}
 			}
 			catch (Exception ex)
@@ -71,7 +78,26 @@ namespace AudioRecord.Forms
 
 		void Play_Clicked (object sender, EventArgs e)
 		{
-			PlayAudio ();
+			StopButton.IsEnabled = true;
+
+			if (_playerIsPaused)
+			{
+				//resume
+				_playerIsPaused = false;
+				player.Play();
+			}
+			else if (_isPlaying)
+			{
+				player.Pause();
+				_playerIsPaused = true;
+			}
+			else
+			{
+				PlayAudio();
+			}
+
+			_isPlaying = true;
+			UpdatePlayButtonText();
 		}
 
 		void PlayAudio ()
@@ -82,7 +108,6 @@ namespace AudioRecord.Forms
 
 				if (filePath != null)
 				{
-					PlayButton.IsEnabled = false;
 					RecordButton.IsEnabled = false;
 
 					player.Play (filePath);
@@ -99,6 +124,45 @@ namespace AudioRecord.Forms
 		{
 			PlayButton.IsEnabled = true;
 			RecordButton.IsEnabled = true;
+			StopButton.IsEnabled = false;
+			_isPlaying = false;
+			_playerIsPaused = false;
+			UpdatePlayButtonText();
+		}
+
+		private async void Stop_Clicked(object sender, EventArgs e)
+		{
+			if (recorder.IsRecording)
+			{
+				RecordButton.IsEnabled = false;
+
+				//stop the recording...
+				await recorder.StopRecording();
+
+				_recorderIsPaused = false;
+				RecordButton.IsEnabled = true;
+				PlayButton.IsEnabled = true;
+			}
+			else
+			{
+				player.Pause();
+				_playerIsPaused = false;
+				_isPlaying = false;
+				UpdatePlayButtonText();
+			}
+
+			RecordButton.IsEnabled = true;			
+			StopButton.IsEnabled = false;
+		}
+
+		private void UpdatePlayButtonText()
+		{
+			PlayButton.Text = _isPlaying &&  !_playerIsPaused ? "Pause" : "Play";
+		}
+
+		private void UpdateRecordButtonText()
+		{
+			RecordButton.Text = recorder.IsRecording && !_recorderIsPaused ? "Pause" : "Record";
 		}
 	}
 }
