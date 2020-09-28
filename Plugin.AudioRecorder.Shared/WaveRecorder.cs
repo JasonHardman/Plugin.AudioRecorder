@@ -15,6 +15,8 @@ namespace Plugin.AudioRecorder
 		int byteCount;
 		IAudioStream audioStream;
 
+		public bool IsPaused { get; private set; }
+
 		/// <summary>
 		/// Starts recording WAVE format audio from the audio stream.
 		/// </summary>
@@ -22,6 +24,7 @@ namespace Plugin.AudioRecorder
 		/// <param name="filePath">The full path of the file to record audio to.</param>
 		public async Task StartRecorder (IAudioStream stream, string filePath)
 		{
+			IsPaused = false;
 			if (stream == null)
 			{
 				throw new ArgumentNullException (nameof (stream));
@@ -82,7 +85,7 @@ namespace Plugin.AudioRecorder
 		{
 			try
 			{
-				if (writer != null && streamWriter != null)
+				if (writer != null && streamWriter != null && !IsPaused)
 				{
 					writer.Write (bytes);
 					byteCount += bytes.Length;
@@ -131,6 +134,16 @@ namespace Plugin.AudioRecorder
 				Debug.WriteLine ("Error during StopRecorder: {0}", ex.Message);
 				throw;
 			}
+		}
+
+		public void PauseRecorder()
+		{
+			IsPaused = true;
+		}
+
+		public void ResumeRecorder()
+		{
+			IsPaused = false;
 		}
 
 		public void Dispose ()

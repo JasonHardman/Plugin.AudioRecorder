@@ -93,12 +93,18 @@ namespace Plugin.AudioRecorder
 		}
 
 		/// <summary>
-		/// Starts recording audio.
+		/// Starts recording audio. Also resumes a paused recording.
 		/// </summary>
 		/// <returns>A <see cref="Task"/> that will complete when recording is finished.  
 		/// The task result will be the path to the recorded audio file, or null if no audio was recorded.</returns>
 		public async Task<Task<string>> StartRecording ()
 		{
+			if (recorder?.IsPaused == true)
+			{
+				recorder.ResumeRecorder();
+				return recordTask.Task;
+			}
+
 			if (FilePath == null)
 			{
 				FilePath = await GetDefaultFilePath ();
@@ -135,6 +141,15 @@ namespace Plugin.AudioRecorder
 			return recorder.GetAudioFileStream ();
 		}
 
+		/// <summary>
+		/// Pauses the recording. Can be resumed by calling <see cref="StartRecording"/>.
+		/// </summary>
+		public void PauseRecording()
+		{
+			audioStream.Flush();  // allow the stream to send any remaining data
+			recorder?.PauseRecorder();
+		}
+
 		void ResetAudioDetection ()
 		{
 			audioDetected = false;
@@ -144,6 +159,13 @@ namespace Plugin.AudioRecorder
 
 		void AudioStream_OnBroadcast (object sender, byte [] bytes)
 		{
+			//ignore if paused
+			if (recorder?.IsPaused == true)
+			{
+				silenceTime = null;
+				return;
+			}
+
 			var level = AudioFunctions.CalculateLevel (bytes);
 
 			if (level < NearZero && !audioDetected) // discard any initial 0s so we don't jump the gun on timing out
